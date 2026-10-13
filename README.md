@@ -38,3 +38,143 @@ O app não se conecta com banco nenhum. O registro é 100% manual, que é justam
 - 🔎 **Busca** por descrição, valor, data, categoria e autor
 
 Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
+
+## 🛠️ Tecnologias, Ferramentas e Infraestrutura
+
+### Mobile
+
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![NativeWind](https://img.shields.io/badge/NativeWind-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white)
+
+### Backend
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+
+### Banco de dados
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+
+### Infraestrutura e ferramentas
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+
+| Camada | Tecnologia | Para que serve |
+|---|---|---|
+| App | React Native + Expo | Base do aplicativo Android |
+| App | TypeScript | Linguagem do app |
+| App | NativeWind (Tailwind CSS) | Estilo das telas |
+| App | TanStack Query | Cache dos dados e nova tentativa quando a internet cai |
+| App | expo-camera | Leitura do QR Code do convite |
+| App | expo-secure-store | Guardar os tokens de login com segurança |
+| API | Python 3.11 + Flask | API REST |
+| API | SQLAlchemy + Alembic | Acesso ao banco e controle de versão das tabelas |
+| API | PyJWT + google-auth | Tokens de sessão e validação do login Google |
+| Banco | PostgreSQL 15 | Banco de dados relacional |
+| Login | Google OAuth 2.0 | Autenticação com a conta Google |
+| Infra | Docker + Docker Compose | Subir API e banco do mesmo jeito em qualquer máquina |
+| Infra | Google Cloud (VM Compute Engine) | Hospedagem da API e do banco |
+| Infra | Nginx + Let's Encrypt | Proxy reverso e certificado HTTPS |
+| Infra | Expo EAS Build | Gerar o APK do aplicativo |
+| Infra | GitHub Actions | Rodar os testes a cada push e pull request |
+| Testes | PyTest e Jest | Testes da API e do app |
+| Design | HTML + CSS | Protótipo das telas |
+
+O aplicativo **não vai para a Play Store**. Como é para uso do casal, a instalação é feita direto pelo arquivo APK.
+
+Mais detalhes em [docs/arquitetura.md](docs/arquitetura.md).
+
+## 🔁 Metodologias utilizadas
+
+### Modelo de processo: incremental com Scrum
+
+Para escolher o modelo comparei os que vimos em aula:
+
+| Modelo | Como funciona | Serve para o DuoCash? |
+|---|---|---|
+| **Cascata** | Uma fase depois da outra (requisitos, projeto, implementação, testes, manutenção). Voltar atrás custa caro. | ❌ Só daria para usar o app no final. Se o casal não gostar do jeito de lançar gasto, o problema só aparece depois de tudo pronto. |
+| **Espiral** | Ciclos com análise de risco em cada volta. Indicado para sistemas grandes e de alto risco. | ❌ É pesado demais para um projeto pequeno. A análise de risco formal em cada ciclo daria mais trabalho do que o próprio app. |
+| **Incremental / Ágil (Scrum)** | O sistema é entregue em partes pequenas que já funcionam, com feedback a cada entrega. | ✅ Dá para usar o app desde a primeira entrega e ir ajustando. |
+
+**Por que incremental?** Os requisitos do DuoCash ainda vão mudar bastante. Coisas como as categorias, o formato do resumo e o fluxo de convite só dá para saber se estão boas usando no dia a dia. Entregando em partes, a primeira versão já serve para registrar gastos e as próximas vão acrescentando o resto.
+
+Do **Scrum** vou usar:
+
+- **Product Backlog**: os requisitos de [docs/requisitos.md](docs/requisitos.md) viram issues no GitHub, em ordem de prioridade;
+- **Sprints de 2 semanas**, cada uma terminando com algo que funciona;
+- **Revisão no fim da sprint**: testar a entrega no celular e anotar o que precisa mudar;
+- **Kanban** no GitHub Projects com as colunas *A fazer*, *Fazendo*, *Em revisão* e *Feito*.
+
+### Planejamento das entregas
+
+| Sprint | Entrega | Requisitos |
+|---|---|---|
+| 1 | Projeto configurado, login com Google e criação de ambiente | RF01, RF02 |
+| 2 | Registro e listagem de gastos | RF06, RF07, RF09 |
+| 3 | Convite por link e QR Code, com permissões | RF03, RF04, RF05, RF13 |
+| 4 | Resumo mensal com gráficos | RF10, RF11 |
+| 5 | Busca com filtros e ícones de lazer | RF08, RF12 |
+| 6 | Gestão do ambiente, testes finais e geração do APK | RF14 |
+
+A partir da sprint 2 já existe um app que pode ser usado de verdade, mesmo que só por uma pessoa.
+
+### Como o Git e o GitHub são usados
+
+**Branches**
+
+```
+main                    versão estável, só recebe código revisado
+└── develop             junta o que foi feito na sprint
+    ├── feature/login-google
+    ├── feature/registro-gasto
+    └── fix/soma-resumo-mensal
+```
+
+- Cada tarefa do Kanban vira uma branch `feature/...` (ou `fix/...` para correção) criada a partir da `develop`.
+- Quando a tarefa termina, abre-se um **Pull Request** para a `develop`. O GitHub Actions roda os testes e só entra se passar.
+- No fim da sprint a `develop` vai para a `main` e a versão ganha uma **tag** (`v0.1.0`, `v0.2.0`...).
+
+Nesta fase de documentação os commits estão indo direto na `main`. As branches começam junto com o código.
+
+**Commits**
+
+Os commits seguem o padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/), pequenos e com mensagem dizendo o que mudou:
+
+| Prefixo | Quando usar |
+|---|---|
+| `feat:` | Nova funcionalidade |
+| `fix:` | Correção de erro |
+| `docs:` | Documentação |
+| `test:` | Testes |
+| `refactor:` | Melhoria no código sem mudar o comportamento |
+| `chore:` | Configuração e dependências |
+
+```
+feat(gastos): adiciona seletor de ícones para a categoria Lazer
+fix(resumo): corrige soma do mês quando o gasto é excluído
+docs: atualiza diagrama de caso de uso
+```
+
+**Outros recursos do GitHub**
+
+- **Issues** para o backlog e para registrar erros;
+- **GitHub Projects** para o quadro Kanban;
+- **GitHub Actions** para rodar os testes automaticamente;
+- **.gitignore** para não subir senhas, arquivos `.env` e o APK gerado.
+
+### Testes
+
+| Tipo | Ferramenta | O que verifica |
+|---|---|---|
+| Unitário (API) | PyTest | Soma do mês, conversão para centavos, regras de permissão |
+| Unitário (app) | Jest | Formatação de moeda, limite de 100 caracteres |
+| Integração | PyTest + banco de teste | Login, criar gasto, aceitar convite |
+| Manual | No celular | Duplo toque em salvar, modo avião, troca de tela durante o envio |
