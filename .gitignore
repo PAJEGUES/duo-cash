@@ -1,0 +1,26 @@
+# documento de rascunho do projeto (fica só na minha máquina)
+Mobile Financeiro.pdf
+
+# sistema / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# node / expo
+node_modules/
+.expo/
+dist/
+*.apk
+*.keystore
+
+# python
+.venv/
+__pycache__/
+*.pyc
