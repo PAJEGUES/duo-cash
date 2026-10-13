@@ -178,3 +178,48 @@ docs: atualiza diagrama de caso de uso
 | Unitário (app) | Jest | Formatação de moeda, limite de 100 caracteres |
 | Integração | PyTest + banco de teste | Login, criar gasto, aceitar convite |
 | Manual | No celular | Duplo toque em salvar, modo avião, troca de tela durante o envio |
+
+## 🎨 Projeto de Interface
+
+As telas foram montadas em HTML e CSS, no tamanho de um celular. O protótipo está na pasta [prototipo/](prototipo/) e dá para navegar entre as telas: é só baixar o repositório e abrir o arquivo `prototipo/index.html` no navegador.
+
+| Login | Ambientes | Novo gasto |
+|:---:|:---:|:---:|
+| <img src="docs/telas/01-login.png" width="250" alt="Tela de login"> | <img src="docs/telas/02-ambientes.png" width="250" alt="Tela de ambientes"> | <img src="docs/telas/03-novo-gasto.png" width="250" alt="Tela de novo gasto"> |
+| Entrada somente com a conta Google | Lista dos ambientes e últimos lançamentos | Valor, descrição, data, categoria e ícone de lazer |
+
+| Resumo do mês | Extrato e busca | Convite por QR Code |
+|:---:|:---:|:---:|
+| <img src="docs/telas/04-resumo.png" width="250" alt="Tela de resumo do mês"> | <img src="docs/telas/05-extrato-busca.png" width="250" alt="Tela de extrato e busca"> | <img src="docs/telas/06-convite-qrcode.png" width="250" alt="Tela de convite"> |
+| Total, gráfico por categoria e quem gastou quanto | Busca por descrição com filtros | Escolha da permissão, QR Code e link |
+
+**Sobre o visual**
+
+- Roxo como cor principal e verde para diferenciar a segunda pessoa do casal;
+- Cada pessoa tem uma cor e a inicial do nome, e isso aparece em todo lançamento;
+- Botão **+** sempre no centro do menu, porque registrar gasto é a ação mais usada;
+- Na tela de novo gasto o valor vem primeiro e em destaque, para o registro ser rápido.
+
+## 📐 Diagramas
+
+- [Diagrama de caso de uso](docs/diagramas/caso-de-uso.md)
+- [Diagramas de sequência](docs/diagramas/sequencia.md) (login, convite e registro de gasto)
+- [Arquitetura e modelo de dados](docs/arquitetura.md)
+
+## 🗺️ Próximos passos
+
+- [x] Levantamento de requisitos
+- [x] Protótipo das telas
+- [x] Diagramas
+- [ ] Sprint 1: login com Google e criação de ambiente
+- [ ] Sprint 2: registro de gastos
+- [ ] Sprint 3: convite por QR Code
+- [ ] Sprint 4: resumo mensal
+- [ ] Sprint 5: busca e ícones de lazer
+- [ ] Sprint 6: testes e APK
+
+Ideias para versões futuras: foto do comprovante, orçamento por categoria, gastos recorrentes e exportação em PDF.
+
+---
+
+Desenvolvido por **José Marin** 💜
