@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api, ApiError, setSessionExpiredHandler } from "@/api/client";
 import { clearTokens, loadSession, saveTokens } from "@/api/storage";
 import type { AuthResponse, ServerConfig, User } from "@/api/types";
+import { googleSignInErrorMessage } from "@/lib/googleError";
 
 type AuthState = {
   status: "loading" | "signedOut" | "signedIn";
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       idToken = res.data.idToken;
     } catch (e) {
       if (isErrorWithCode(e) && e.code === statusCodes.IN_PROGRESS) return;
-      throw new ApiError(0, "google", "Não foi possível entrar com o Google. Confira a conexão e tente de novo.");
+      throw new ApiError(0, "google", googleSignInErrorMessage(isErrorWithCode(e) ? e.code : undefined));
     }
     if (!idToken) throw new ApiError(0, "google", "O Google não devolveu a identificação da conta.");
     const data = await api<AuthResponse>("/auth/google", { method: "POST", body: { id_token: idToken }, auth: false });

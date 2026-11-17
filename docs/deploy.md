@@ -55,6 +55,10 @@ O Console da Google Cloud oferece o teste gratuito e pede cartão. O **Firebase*
 
    Clique em **Registrar app**. Pule o download do `google-services.json` e os passos do SDK (**Próxima → Próxima → Continuar no console**). O Android não precisa de ID próprio no servidor: ele só precisa estar registrado com esse pacote e esse SHA-1.
 
+> **Espere de 5 a 10 minutos** depois de registrar o app Android antes de testar o login. Até o Google reconhecer o SHA-1, o app mostra "Não foi possível entrar com o Google" (código 10).
+>
+> Para conferir os IDs no Console da Google Cloud (**APIs e serviços → Credenciais**), abra o projeto com o **ID do projeto do Firebase** (ex.: `duocash-a1b2c`, em **Configurações do projeto → Geral**). Um projeto "duocash" criado direto no Google Cloud é outro projeto e aparece vazio.
+
 Se um dia a chave de assinatura mudar, o novo SHA-1 sai de `keytool -list -v -keystore <arquivo>` e é adicionado em **Configurações do projeto → Seus apps → Adicionar impressão digital**.
 
 O app busca o ID Web no servidor, então mudar essa configuração não exige gerar outro APK.
