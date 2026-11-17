@@ -1,0 +1,23 @@
+# HTTPS automático (Let's Encrypt) para o domínio do .env, ex.: 34-12-1-9.sslip.io
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+		-Via
+	}
+
+	request_body {
+		max_size 32KB
+	}
+
+	reverse_proxy api:8000 {
+		health_uri /health
+		health_interval 30s
+	}
+	# Sem diretiva "log": o Caddy não grava log de acesso (os caminhos de convite contêm tokens).
+}

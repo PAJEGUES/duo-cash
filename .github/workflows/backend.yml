@@ -1,0 +1,78 @@
+name: backend
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - name: Instalar dependências
+        run: pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Segurança (bandit + pip-audit)
+        run: |
+          bandit -q -c pyproject.toml -r app wsgi.py gunicorn.conf.py
+          pip-audit -r requirements.txt
+      - name: Testes (pytest)
+        run: pytest
+
+  postgres:
+    # Garante que a migração roda no PostgreSQL de verdade.
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:15.20-alpine
+        env:
+          POSTGRES_DB: duocash
+          POSTGRES_USER: duocash
+          POSTGRES_PASSWORD: duocash
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U duocash" --health-interval 5s --health-timeout 3s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql://duocash:duocash@localhost:5432/duocash
+      SECRET_KEY: ci-only-secret-key-0123456789abcdef0123456789
+      FLASK_APP: wsgi.py
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install -r requirements.txt
+      - name: Migração upgrade/downgrade/upgrade
+        run: |
+          flask db upgrade
+          flask db downgrade base
+          flask db upgrade

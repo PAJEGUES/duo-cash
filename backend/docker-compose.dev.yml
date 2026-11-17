@@ -1,0 +1,40 @@
+# Ambiente local: Postgres + API em http://localhost:8000 com login de desenvolvimento.
+# Uso: docker compose -f docker-compose.dev.yml up --build
+name: duocash-dev
+
+services:
+  db:
+    image: postgres:15.20-alpine
+    environment:
+      POSTGRES_DB: duocash
+      POSTGRES_USER: duocash
+      POSTGRES_PASSWORD: duocash-dev
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - dev-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duocash -d duocash"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://duocash:duocash-dev@db:5432/duocash
+      SECRET_KEY: dev-only-secret-key-not-for-production-0123456789
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+      INVITE_TTL_MINUTES: ${INVITE_TTL_MINUTES:-60}
+      DEV_LOGIN_ENABLED: "1"
+      RATELIMIT_DISABLED: ${RATELIMIT_DISABLED:-0}
+    ports:
+      # Só nesta máquina. Para testar no celular pela rede local, veja o README.
+      - "127.0.0.1:8000:8000"
+
+volumes:
+  dev-db:

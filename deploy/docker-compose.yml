@@ -1,0 +1,119 @@
+# Produção do DuoCash numa VM pequena (GCP e2-micro, 1 GB de RAM + 1 GB de swap).
+# Uso (dentro desta pasta, com o .env preenchido):  docker compose up -d --build
+name: duocash
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-hardening: &hardening
+  restart: unless-stopped
+  logging: *logging
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  db:
+    <<: *hardening
+    image: postgres:15.20-alpine
+    environment:
+      POSTGRES_DB: duocash
+      POSTGRES_USER: duocash
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    # Ajustado para pouca memória. Sem "ports": o banco não fica exposto fora da rede do compose.
+    command:
+      - postgres
+      - -c
+      - max_connections=30
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - effective_cache_size=192MB
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - wal_buffers=4MB
+      - -c
+      - max_wal_size=256MB
+      - -c
+      - min_wal_size=64MB
+      - -c
+      - huge_pages=off
+    shm_size: 64m
+    mem_limit: 256m
+    read_only: true
+    tmpfs:
+      - /var/run/postgresql
+      - /tmp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duocash -d duocash"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    <<: *hardening
+    build: ../backend
+    image: duocash-api:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://duocash:${POSTGRES_PASSWORD}@db:5432/duocash
+      SECRET_KEY: ${SECRET_KEY:?defina SECRET_KEY no .env}
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:?defina GOOGLE_CLIENT_IDS no .env}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?defina PUBLIC_BASE_URL no .env}
+      INVITE_TTL_MINUTES: ${INVITE_TTL_MINUTES:-60}
+      DEV_LOGIN_ENABLED: "0"  # nunca ligar em produção
+      TRUST_PROXY: "1"        # IP real do cliente vem do Caddy (X-Forwarded-For)
+      GUNICORN_WORKERS: "2"
+    expose:
+      - "8000"
+    mem_limit: 320m
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    # healthcheck definido no Dockerfile (GET /health)
+
+  caddy:
+    <<: *hardening
+    image: caddy:2.11.9-alpine
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:?defina DOMAIN no .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    mem_limit: 128m
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

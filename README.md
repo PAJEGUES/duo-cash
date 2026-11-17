@@ -2,7 +2,9 @@
 
 Aplicativo de controle financeiro para casais. Os dois registram os gastos no mesmo lugar e acompanham juntos para onde o dinheiro do mês está indo.
 
-> Projeto da disciplina de Engenharia de Software. Por enquanto o repositório tem a documentação e o protótipo das telas, o aplicativo em si ainda não foi desenvolvido.
+> Projeto da disciplina de Engenharia de Software. O repositório tem a documentação, o protótipo, o aplicativo Android (`mobile/`) e a API (`backend/`).
+
+📲 **Instalar:** baixe o `DuoCash.apk` da [última versão](https://github.com/PAJEGUES/duo-cash/releases/latest). O passo a passo completo (servidor, login Google e instalação) está em [docs/deploy.md](docs/deploy.md).
 
 ## 📌 Sobre o Projeto
 
@@ -61,7 +63,7 @@ Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
 ### Infraestrutura e ferramentas
 
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Caddy](https://img.shields.io/badge/Caddy-1F88C0?style=for-the-badge&logo=caddy&logoColor=white)
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
@@ -71,7 +73,8 @@ Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
 |---|---|---|
 | App | React Native + Expo | Base do aplicativo Android |
 | App | TypeScript | Linguagem do app |
-| App | NativeWind (Tailwind CSS) | Estilo das telas |
+| App | NativeWind (Tailwind CSS) | Estilo das telas, com modo escuro automático |
+| App | Reanimated + Expo Haptics | Animações de entrada e micro-interações |
 | App | TanStack Query | Cache dos dados e nova tentativa quando a internet cai |
 | App | expo-camera | Leitura do QR Code do convite |
 | App | expo-secure-store | Guardar os tokens de login com segurança |
@@ -82,10 +85,11 @@ Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
 | Login | Google OAuth 2.0 | Autenticação com a conta Google |
 | Infra | Docker + Docker Compose | Subir API e banco do mesmo jeito em qualquer máquina |
 | Infra | Google Cloud (VM Compute Engine) | Hospedagem da API e do banco |
-| Infra | Nginx + Let's Encrypt | Proxy reverso e certificado HTTPS |
-| Infra | Expo EAS Build | Gerar o APK do aplicativo |
+| Infra | Caddy + Let's Encrypt | Proxy reverso e certificado HTTPS automático |
+| Infra | Gradle (build local) + GitHub Releases | Gerar e distribuir o APK assinado |
 | Infra | GitHub Actions | Rodar os testes a cada push e pull request |
 | Testes | PyTest e Jest | Testes da API e do app |
+| Segurança | Bandit, pip-audit, npm audit, Ruff | Análise estática e dependências vulneráveis |
 | Design | HTML + CSS | Protótipo das telas |
 
 O aplicativo **não vai para a Play Store**. Como é para uso do casal, a instalação é feita direto pelo arquivo APK.
@@ -142,7 +146,7 @@ main                    versão estável, só recebe código revisado
 - Quando a tarefa termina, abre-se um **Pull Request** para a `develop`. O GitHub Actions roda os testes e só entra se passar.
 - No fim da sprint a `develop` vai para a `main` e a versão ganha uma **tag** (`v0.1.0`, `v0.2.0`...).
 
-Nesta fase de documentação os commits estão indo direto na `main`. As branches começam junto com o código.
+A primeira versão (v0.1.0) entrou direto na `main`. Daqui em diante as mudanças seguem o fluxo de branches acima.
 
 **Commits**
 
@@ -205,18 +209,22 @@ As telas foram montadas em HTML e CSS, no tamanho de um celular. O protótipo es
 - [Diagrama de caso de uso](docs/diagramas/caso-de-uso.md)
 - [Diagramas de sequência](docs/diagramas/sequencia.md) (login, convite e registro de gasto)
 - [Arquitetura e modelo de dados](docs/arquitetura.md)
+- [Implantação e instalação](docs/deploy.md)
+- [Plano de testes 360°](docs/testes.md)
 
 ## 🗺️ Próximos passos
 
 - [x] Levantamento de requisitos
 - [x] Protótipo das telas
 - [x] Diagramas
-- [ ] Sprint 1: login com Google e criação de ambiente
-- [ ] Sprint 2: registro de gastos
-- [ ] Sprint 3: convite por QR Code
-- [ ] Sprint 4: resumo mensal
-- [ ] Sprint 5: busca e ícones de lazer
-- [ ] Sprint 6: testes e APK
+- [x] Sprint 1: login com Google e criação de ambiente
+- [x] Sprint 2: registro de gastos
+- [x] Sprint 3: convite por QR Code
+- [x] Sprint 4: resumo mensal
+- [x] Sprint 5: busca e ícones de lazer
+- [x] Sprint 6: testes e APK (v0.1.0)
+- [ ] Validação com o casal no dia a dia (UAT) e ajustes
+- [ ] Testes E2E automatizados (Maestro) e varredura OWASP ZAP
 
 Ideias para versões futuras: foto do comprovante, orçamento por categoria, gastos recorrentes e exportação em PDF.
 
