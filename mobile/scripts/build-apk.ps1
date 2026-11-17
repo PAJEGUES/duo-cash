@@ -46,6 +46,15 @@ Push-Location $root
 try {
   npx expo prebuild --platform android --clean --no-install
   if ($LASTEXITCODE -ne 0) { throw "expo prebuild falhou" }
+
+  # O ninja que vem com o CMake 3.22 não suporta caminhos longos no Windows.
+  # Usa o CMake mais novo instalado (ninja >= 1.12), se houver.
+  $cmake = Get-ChildItem "$env:ANDROID_HOME\cmake" -Directory -ErrorAction SilentlyContinue |
+    Where-Object { [version]$_.Name -ge [version]"3.31" } | Sort-Object { [version]$_.Name } | Select-Object -Last 1
+  if ($cmake) {
+    $props = "sdk.dir=$($env:ANDROID_HOME -replace '\\','/')`ncmake.dir=$($cmake.FullName -replace '\\','/')`n"
+    [IO.File]::WriteAllText("$root\android\local.properties", $props)
+  }
   Push-Location android
   try {
     .\gradlew.bat assembleRelease --no-daemon "-PreactNativeArchitectures=arm64-v8a,armeabi-v7a"

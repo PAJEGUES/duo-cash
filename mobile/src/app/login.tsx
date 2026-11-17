@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Text, TextInput, View } from "react-native";
+import { ScrollView, Text, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -56,8 +56,12 @@ export default function Login() {
 
   return (
     <LinearGradient colors={p.hero} start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 1 }} style={{ flex: 1 }}>
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom + 24 }}>
-        <View className="flex-1 items-center justify-center px-8">
+      {/* ScrollView: em telas baixas (ou com o teclado aberto) o botão nunca fica escondido. */}
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }}
+      >
+        <View className="flex-1 items-center justify-center px-8 py-8">
           <Animated.View entering={FadeIn.duration(600)} className="h-24 w-24 items-center justify-center rounded-[28px] border border-white/25 bg-white/15">
             <Text style={{ fontSize: 48 }}>💑</Text>
           </Animated.View>
@@ -84,7 +88,7 @@ export default function Login() {
                 className="rounded-2xl border border-white/25 bg-white/10 px-4 py-3.5 font-sans text-base text-white"
               />
               <Text className="mt-2 font-sans text-xs leading-5 text-white/70">
-                ⚠️ Use somente o endereço que você mesmo configurou no seu servidor. Depois de salvo, ele não pode ser trocado sem limpar os dados do app.
+                ⚠️ Use só o endereço do seu próprio servidor. Depois de salvo, ele não pode ser trocado.
               </Text>
             </View>
           ) : null}
@@ -107,7 +111,7 @@ export default function Login() {
             </Press>
           ) : null}
         </Animated.View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </LinearGradient>
   );
 }
