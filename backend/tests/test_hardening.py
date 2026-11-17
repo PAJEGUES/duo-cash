@@ -158,3 +158,18 @@ def test_google_certs_are_cached_with_timeout():
 
 def test_google_request_is_singleton():
     assert security.google_request() is security.google_request()
+
+
+# --- HSTS só em HTTPS (atrás do proxy do Render/Caddy) --------------------------------
+
+
+def test_hsts_sent_behind_https_proxy():
+    app = make_app(TRUST_PROXY=True)
+    # o proxy termina o HTTPS e avisa pelo X-Forwarded-Proto (ProxyFix ligado por TRUST_PROXY)
+    res = app.test_client().get("/health", headers={"X-Forwarded-Proto": "https"})
+    assert res.headers["Strict-Transport-Security"].startswith("max-age=31536000")
+
+
+def test_no_hsts_over_plain_http():
+    res = make_app().test_client().get("/health")
+    assert "Strict-Transport-Security" not in res.headers

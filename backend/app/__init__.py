@@ -67,6 +67,8 @@ def create_app(overrides: dict | None = None) -> Flask:
         headers.setdefault("X-Frame-Options", "DENY")
         headers.setdefault("Referrer-Policy", "no-referrer")
         headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+        if request.is_secure:  # atrás de proxy HTTPS (Render/Caddy) com TRUST_PROXY ligado
+            headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         if response.mimetype == "application/json":
             headers.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
             headers.setdefault("Cache-Control", "no-store")
