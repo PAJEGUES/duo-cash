@@ -7,14 +7,14 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? "";
 const config: ExpoConfig = {
   name: "DuoCash",
   slug: "duo-cash",
-  version: "0.1.0",
+  version: "0.1.1",
   orientation: "portrait",
   icon: "./assets/icon.png",
   scheme: "duocash",
   userInterfaceStyle: "automatic",
   android: {
     package: "com.pajegues.duocash",
-    versionCode: 1,
+    versionCode: 2,
     adaptiveIcon: {
       backgroundColor: "#6D4FC2",
       foregroundImage: "./assets/android-icon-foreground.png",
