@@ -22,7 +22,7 @@ Celular (APK) ──HTTPS──▶ Render (API Flask, plano Free) ──TLS─�
 - **Render Free:** 512 MB de RAM e 750 horas/mês (dá para ficar ligado o mês inteiro). Depois de **15 minutos sem uso o servidor dorme**; a primeira abertura do app depois disso leva **até ~1 minuto**. O app espera esse tempo sozinho.
 - **Neon Free:** 1 GB de dados por projeto (milhões de gastos), banco que "dorme" após 5 minutos sem uso e acorda em menos de 1 segundo. Não há cobrança: se um dia passar do limite, novas gravações falham até liberar espaço.
 
-O **login com Google não depende de hospedagem nem de faturamento**: criar o projeto e os IDs OAuth no Google Cloud é gratuito e não ativa o período de teste.
+O **login com Google não depende de hospedagem nem de faturamento**: os IDs de login são criados pelo Firebase, no plano gratuito Spark, sem cartão.
 
 ## 1. Banco de dados no Neon
 
@@ -36,19 +36,28 @@ O **login com Google não depende de hospedagem nem de faturamento**: criar o pr
 
    Use a conexão **direta** (endereço sem `-pooler`): as migrações do banco rodam a cada deploy e ficam mais seguras sem o pooler. Guarde essa string; ela é a senha do banco.
 
-## 2. Login com Google (OAuth)
+## 2. Login com Google (pelo Firebase, sem cartão)
 
-1. Acesse o [Console da Google Cloud](https://console.cloud.google.com/) e crie um projeto (ex.: `duocash`). **Não precisa ativar faturamento nem o teste gratuito.**
-2. **APIs e serviços → Tela de consentimento OAuth** (ou **Google Auth Platform → Branding**): tipo **Externo**, nome `DuoCash`, seu e-mail de suporte.
-   - O app pede só nome, e-mail e foto (escopos básicos), então ele pode ser **publicado** (**Público-alvo → Publicar app**) sem passar por verificação do Google. Assim qualquer conta Google consegue entrar; quem entra só vê os ambientes para os quais foi convidado.
-   - Se preferir deixar em modo **Teste**, adicione o seu e-mail e o da sua esposa em **Usuários de teste**; só esses e-mails conseguirão entrar.
-3. **Credenciais → Criar credenciais → ID do cliente OAuth → Aplicativo da Web**. Nome: `DuoCash Web`. Não precisa preencher URIs. Copie o **ID do cliente**.
-4. **Criar credenciais → ID do cliente OAuth → Android**:
+O Console da Google Cloud oferece o teste gratuito e pede cartão. O **Firebase** cria o mesmo projeto e os mesmos IDs de login no plano gratuito **Spark**, sem cartão. O app não usa nenhum outro serviço do Firebase.
+
+1. Acesse o [Console do Firebase](https://console.firebase.google.com) com a sua conta Google e clique em **Criar um projeto**. Nome: `duocash`. **Desative o Google Analytics** e clique em **Criar projeto**.
+2. No menu da esquerda: **Criação → Authentication → Vamos começar**.
+3. Aba **Método de login → Google → Ativar**. Escolha o seu e-mail como e-mail de suporte e clique em **Salvar**.
+4. Clique de novo em **Google** e abra **Configuração do SDK da Web**. Copie o **ID do cliente da Web** (termina em `.apps.googleusercontent.com`). **Esse é o valor de `GOOGLE_CLIENT_IDS`** do próximo passo.
+5. Clique na engrenagem (**Configurações do projeto**), aba **Geral → Seus apps**, e clique no ícone do **Android**:
    - Nome do pacote: `com.pajegues.duocash`
-   - Impressão digital SHA-1: a da chave que assina o APK (quem gera o APK obtém com `keytool -list -v -keystore <arquivo>`).
-5. Junte os dois IDs, **o Web primeiro**, separados por vírgula: `<id Web>,<id Android>`. Esse é o valor de `GOOGLE_CLIENT_IDS` do próximo passo.
+   - Apelido: `DuoCash`
+   - Certificado SHA-1 (da chave que assina o APK oficial):
 
-O app busca o ID do cliente no servidor, então mudar essa configuração não exige gerar outro APK.
+     ```
+     06:F4:A5:0D:4D:54:D3:2C:91:31:76:8C:FB:0C:3F:10:F0:44:67:0B
+     ```
+
+   Clique em **Registrar app**. Pule o download do `google-services.json` e os passos do SDK (**Próxima → Próxima → Continuar no console**). O Android não precisa de ID próprio no servidor: ele só precisa estar registrado com esse pacote e esse SHA-1.
+
+Se um dia a chave de assinatura mudar, o novo SHA-1 sai de `keytool -list -v -keystore <arquivo>` e é adicionado em **Configurações do projeto → Seus apps → Adicionar impressão digital**.
+
+O app busca o ID Web no servidor, então mudar essa configuração não exige gerar outro APK.
 
 ## 3. API no Render
 
@@ -56,7 +65,7 @@ O app busca o ID do cliente no servidor, então mudar essa configuração não e
 2. **New → Blueprint**, escolha o repositório `duo-cash`. O Render lê o arquivo [`render.yaml`](../render.yaml) e mostra o serviço `duocash-api` no plano **Free**.
 3. Ele pede os dois valores secretos:
    - `DATABASE_URL`: a string de conexão do Neon (passo 1);
-   - `GOOGLE_CLIENT_IDS`: `<id Web>,<id Android>` (passo 2).
+   - `GOOGLE_CLIENT_IDS`: o ID do cliente da Web (passo 2).
 
    A `SECRET_KEY` é gerada pelo próprio Render. O endereço público (`https://duocash-api.onrender.com` ou parecido) é detectado sozinho.
 4. Clique em **Apply**. O primeiro deploy leva alguns minutos e cria as tabelas no Neon automaticamente.
@@ -118,7 +127,7 @@ A pasta [`deploy/`](../deploy) continua disponível para quem quiser rodar tudo 
 sudo apt-get update && sudo apt-get install -y git
 git clone https://github.com/PAJEGUES/duo-cash.git && cd duo-cash
 sudo bash deploy/setup-vm.sh      # instala Docker, cria swap e gera as senhas no deploy/.env
-nano deploy/.env                  # preencha GOOGLE_CLIENT_IDS (e DOMAIN, se não foi detectado)
+nano deploy/.env                  # preencha GOOGLE_CLIENT_IDS com o ID Web (e DOMAIN, se não foi detectado)
 cd deploy && sudo docker compose up -d --build
 ```
 

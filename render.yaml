@@ -16,7 +16,7 @@ services:
     envVars:
       - key: DATABASE_URL     # string de conexão DIRETA do Neon (sem "-pooler")
         sync: false
-      - key: GOOGLE_CLIENT_IDS  # <client Web>,<client Android> (o Web primeiro)
+      - key: GOOGLE_CLIENT_IDS  # ID do cliente da Web (Firebase → Authentication → Google)
         sync: false
       - key: SECRET_KEY
         generateValue: true

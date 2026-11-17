@@ -30,7 +30,7 @@ flowchart TD
 - **Client ID do Google vem do servidor.** O app busca em `GET /config` o ID do cliente OAuth, então trocar a configuração do Google não exige um APK novo.
 - **Cor de cada pessoa.** A API devolve os membros sempre na ordem de entrada no ambiente; o app usa essa ordem para as cores (dono roxo, parceiro(a) verde).
 - **Hospedagem gratuita e permanente.** A API roda no plano Free do Render (container Docker, HTTPS e deploy automático a cada push) e o banco no plano Free do Neon (PostgreSQL). Nenhum dos dois pede cartão, então não há cobrança depois de um período de teste. O preço disso é o "cochilo": sem uso por 15 min o servidor dorme e a primeira requisição leva até ~1 min, por isso o app espera até 75 s por resposta. Para quem preferir uma VM própria, `deploy/` traz Docker Compose com PostgreSQL e Caddy (HTTPS automático via `<ip>.sslip.io`).
-- **Login com Google independente da hospedagem.** O app pega o `id_token` com o Google e a API valida assinatura, emissor e audiência. Os IDs OAuth são gratuitos e não exigem faturamento na Google Cloud.
+- **Login com Google independente da hospedagem.** O app pega o `id_token` com o Google e a API valida assinatura, emissor e audiência. Os IDs OAuth são criados pelo Firebase (plano gratuito Spark), sem cartão nem faturamento.
 
 ## Modelo de dados
 
