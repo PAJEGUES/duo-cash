@@ -64,7 +64,8 @@ Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
 
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Caddy](https://img.shields.io/badge/Caddy-1F88C0?style=for-the-badge&logo=caddy&logoColor=white)
-![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
+![Render](https://img.shields.io/badge/Render-000000?style=for-the-badge&logo=render&logoColor=white)
+![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
@@ -84,8 +85,9 @@ Os requisitos completos estão em [docs/requisitos.md](docs/requisitos.md).
 | Banco | PostgreSQL 15 | Banco de dados relacional |
 | Login | Google OAuth 2.0 | Autenticação com a conta Google |
 | Infra | Docker + Docker Compose | Subir API e banco do mesmo jeito em qualquer máquina |
-| Infra | Google Cloud (VM Compute Engine) | Hospedagem da API e do banco |
-| Infra | Caddy + Let's Encrypt | Proxy reverso e certificado HTTPS automático |
+| Infra | Render (plano Free) | Hospedagem da API com HTTPS e deploy automático, sem custo |
+| Infra | Neon (plano Free) | PostgreSQL gerenciado, sem custo |
+| Infra | Caddy + Let's Encrypt | Opcional: HTTPS numa VM própria (`deploy/`) |
 | Infra | Gradle (build local) + GitHub Releases | Gerar e distribuir o APK assinado |
 | Infra | GitHub Actions | Rodar os testes a cada push e pull request |
 | Testes | PyTest e Jest | Testes da API e do app |

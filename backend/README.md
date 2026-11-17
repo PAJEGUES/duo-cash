@@ -72,12 +72,12 @@ python tests/stress/stress_test.py --base-url http://localhost:8000 --expenses 4
 | `DATABASE_URL` | `sqlite:///duocash.db` | URL do banco. `postgresql://...` usa o driver psycopg 3 |
 | `SECRET_KEY` | — | Chave dos JWT. **Obrigatória, mínimo 32 caracteres** (a API não sobe sem ela) |
 | `GOOGLE_CLIENT_IDS` | — | Client IDs OAuth aceitos no `aud`, separados por vírgula. O primeiro é o client **Web** (vai no `/config`) |
-| `PUBLIC_BASE_URL` | `http://localhost:8000` | Endereço público, usado no link do convite (`/convite/<token>`) |
+| `PUBLIC_BASE_URL` | `RENDER_EXTERNAL_URL` ou `http://localhost:8000` | Endereço público, usado no link do convite (`/convite/<token>`) |
 | `INVITE_TTL_MINUTES` | `60` | Validade do convite |
 | `DEV_LOGIN_ENABLED` | desligado | Liga `POST /auth/dev` (login sem Google). **Nunca em produção** |
 | `ACCESS_TTL_MINUTES` | `15` | Validade do token de acesso |
 | `REFRESH_TTL_DAYS` | `30` | Validade do token de renovação |
-| `TRUST_PROXY` | desligado | Usa o `X-Forwarded-For` do proxy (Caddy) como IP do cliente |
+| `TRUST_PROXY` | desligado | Usa o `X-Forwarded-For` do proxy (Render ou Caddy) como IP do cliente |
 | `RATELIMIT_DISABLED` | desligado | Desliga o limite de requisições (só para teste de carga) |
 | `GUNICORN_WORKERS` / `GUNICORN_THREADS` | `2` / `4` | Processos e threads do gunicorn |
 
@@ -96,7 +96,7 @@ O "hoje" (mês padrão do resumo e limite de data futura dos gastos) é calculad
 
 **Atenção:** o contador fica na memória de cada processo do gunicorn (`memory://`). Com 2 workers o limite
 efetivo pode chegar a 2x o configurado, e ele zera quando o container reinicia. Para um limite exato seria
-preciso um armazenamento compartilhado (ex.: Redis), o que não compensa na VM de 1 GB.
+preciso um armazenamento compartilhado (ex.: Redis), o que não compensa no plano gratuito (no Render roda 1 worker, então o limite é exato até reiniciar).
 
 ## Sessões
 
@@ -107,7 +107,7 @@ preciso um armazenamento compartilhado (ex.: Redis), o que não compensa na VM d
 - `flask revoke-sessions <user_id>` encerra todas as sessões de um usuário (ex.: celular perdido).
 - `flask purge-refresh-tokens` apaga tokens vencidos (também acontece sozinho, aos poucos, nos logins).
 
-No servidor: `docker compose exec api flask purge-refresh-tokens`.
+No servidor: aba **Shell** do serviço no Render (ou `docker compose exec api ...` numa VM): `flask purge-refresh-tokens`.
 
 ## Migrações
 
@@ -118,5 +118,8 @@ flask db upgrade                  # aplica
 
 ## Produção
 
-Ver a pasta [`../deploy`](../deploy): `docker-compose.yml` (Postgres + API + Caddy com HTTPS automático),
-`Caddyfile`, `.env.example` e `setup-vm.sh` para preparar uma VM Debian 12.
+Padrão gratuito: [`../render.yaml`](../render.yaml) (API no Render) + PostgreSQL no Neon. Passo a passo em
+[`../docs/deploy.md`](../docs/deploy.md).
+
+Alternativa com VM própria: pasta [`../deploy`](../deploy) com `docker-compose.yml` (Postgres + API + Caddy com
+HTTPS automático), `Caddyfile`, `.env.example` e `setup-vm.sh` para preparar uma VM Debian 12.

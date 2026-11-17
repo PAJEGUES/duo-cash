@@ -1,7 +1,9 @@
 import { clearTokens, getServerUrl, loadSession, saveTokens } from "./storage";
 import type { AuthResponse } from "./types";
 
-const TIMEOUT_MS = 15_000;
+// Folgado de propósito: no plano gratuito o servidor "dorme" sem uso e leva até ~1 min para
+// acordar. Sem rede, o fetch falha na hora; o limite só pesa quando o servidor está acordando.
+const TIMEOUT_MS = 75_000;
 
 export class ApiError extends Error {
   constructor(

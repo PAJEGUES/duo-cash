@@ -123,7 +123,7 @@ O GitHub Actions roda os testes da API e do app a cada push e pull request.
 | Mesma `Idempotency-Key` enviada 20× em paralelo → 1 gasto só | Automatizado | `stress_test.py` | ✅ |
 | Mesmo refresh token enviado 10× em paralelo → só 1 renova, a sessão é revogada | Automatizado | `stress_test.py` | ✅ |
 | Vários usuários aceitando o mesmo convite ao mesmo tempo → só 1 entra | Automatizado | `stress_test.py` | ✅ |
-| Latência p50/p95 das rotas principais na VM pequena (1 GB) | Automatizado | `stress_test.py` (relatório) | ✅ |
+| Latência p50/p95 das rotas principais em máquina pequena (512 MB–1 GB) | Automatizado | `stress_test.py` (relatório) | ✅ |
 | Carga sustentada por 10 min | Automatizado | Locust | ⏳ |
 
 ## 10. Tratamento de erros e resiliência

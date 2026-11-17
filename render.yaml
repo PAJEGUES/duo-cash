@@ -1,0 +1,32 @@
+# Blueprint do Render (https://render.com/docs/blueprint-spec): API do DuoCash no plano gratuito.
+# O banco fica no Neon (PostgreSQL gratuito e permanente); ver docs/deploy.md.
+# Segredos nunca ficam aqui: DATABASE_URL e GOOGLE_CLIENT_IDS são pedidos no painel (sync: false)
+# e a SECRET_KEY é gerada pelo próprio Render.
+services:
+  - type: web
+    name: duocash-api
+    runtime: docker
+    plan: free
+    region: virginia          # mesma região do banco no Neon (AWS us-east-1)
+    rootDir: backend          # só faz deploy quando algo muda em backend/
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL     # string de conexão DIRETA do Neon (sem "-pooler")
+        sync: false
+      - key: GOOGLE_CLIENT_IDS  # <client Web>,<client Android> (o Web primeiro)
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PORT
+        value: "8000"
+      - key: DEV_LOGIN_ENABLED
+        value: "0"            # nunca ligar em produção
+      - key: TRUST_PROXY
+        value: "1"
+      - key: GUNICORN_WORKERS
+        value: "1"            # instância gratuita tem 512 MB; 1 worker mantém o rate limit consistente
+      - key: INVITE_TTL_MINUTES
+        value: "60"

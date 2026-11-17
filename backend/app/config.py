@@ -21,7 +21,10 @@ class Config:
         self.SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "hide_parameters": True}
         self.SECRET_KEY = os.environ.get("SECRET_KEY", "")
         self.GOOGLE_CLIENT_IDS = [c.strip() for c in os.environ.get("GOOGLE_CLIENT_IDS", "").split(",") if c.strip()]
-        self.PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
+        # No Render, RENDER_EXTERNAL_URL (https://<serviço>.onrender.com) é definido automaticamente.
+        self.PUBLIC_BASE_URL = (
+            os.environ.get("PUBLIC_BASE_URL") or os.environ.get("RENDER_EXTERNAL_URL") or "http://localhost:8000"
+        ).rstrip("/")
         self.INVITE_TTL_MINUTES = int(os.environ.get("INVITE_TTL_MINUTES", "60"))
         self.DEV_LOGIN_ENABLED = _bool(os.environ.get("DEV_LOGIN_ENABLED"))
         self.ACCESS_TTL_MINUTES = int(os.environ.get("ACCESS_TTL_MINUTES", "15"))

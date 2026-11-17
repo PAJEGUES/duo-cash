@@ -24,7 +24,7 @@ def create_app(overrides: dict | None = None) -> Flask:
         raise RuntimeError(f"SECRET_KEY precisa ter pelo menos {MIN_SECRET_LENGTH} caracteres.")
 
     if app.config["TRUST_PROXY"]:
-        # Atrás do Caddy: usa o IP real do cliente (X-Forwarded-For) no rate limit.
+        # Atrás do proxy (Render ou Caddy): usa o IP real do cliente (X-Forwarded-For) no rate limit.
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")

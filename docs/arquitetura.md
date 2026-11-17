@@ -6,9 +6,9 @@ O sistema é dividido em três partes: o aplicativo no celular, uma API no servi
 
 ```mermaid
 flowchart TD
-    A["📱 App Android<br/>React Native + Expo"] -->|"HTTPS (JSON)<br/>Authorization: Bearer JWT"| P["🔒 Caddy<br/>HTTPS automático"]
-    P --> B["⚙️ API REST<br/>Python + Flask (Gunicorn)"]
-    B -->|SQLAlchemy| C[("🗄️ PostgreSQL")]
+    A["📱 App Android<br/>React Native + Expo"] -->|"HTTPS (JSON)<br/>Authorization: Bearer JWT"| P["🔒 Render (plano Free)<br/>HTTPS automático"]
+    P --> B["⚙️ API REST<br/>Python + Flask (Gunicorn, Docker)"]
+    B -->|"SQLAlchemy (TLS)"| C[("🗄️ PostgreSQL<br/>Neon (plano Free)")]
     A -.->|login| D["🔐 Google OAuth 2.0"]
     B -.->|valida o id_token| D
 ```
@@ -29,7 +29,8 @@ flowchart TD
 - **Endereço do servidor configurável.** O APK não depende de um IP fixo: na primeira abertura o usuário informa o endereço `https://` do servidor. Só `https` é aceito na versão de produção.
 - **Client ID do Google vem do servidor.** O app busca em `GET /config` o ID do cliente OAuth, então trocar a configuração do Google não exige um APK novo.
 - **Cor de cada pessoa.** A API devolve os membros sempre na ordem de entrada no ambiente; o app usa essa ordem para as cores (dono roxo, parceiro(a) verde).
-- **HTTPS com Caddy.** No lugar de Nginx + Certbot, o Caddy faz o proxy reverso e emite/renova o certificado Let's Encrypt sozinho. Sem domínio próprio, usamos `<ip>.sslip.io`.
+- **Hospedagem gratuita e permanente.** A API roda no plano Free do Render (container Docker, HTTPS e deploy automático a cada push) e o banco no plano Free do Neon (PostgreSQL). Nenhum dos dois pede cartão, então não há cobrança depois de um período de teste. O preço disso é o "cochilo": sem uso por 15 min o servidor dorme e a primeira requisição leva até ~1 min, por isso o app espera até 75 s por resposta. Para quem preferir uma VM própria, `deploy/` traz Docker Compose com PostgreSQL e Caddy (HTTPS automático via `<ip>.sslip.io`).
+- **Login com Google independente da hospedagem.** O app pega o `id_token` com o Google e a API valida assinatura, emissor e audiência. Os IDs OAuth são gratuitos e não exigem faturamento na Google Cloud.
 
 ## Modelo de dados
 
@@ -130,8 +131,8 @@ Filtros da busca: `q` (descrição), `category`, `author_id`, `date_from`, `date
 - Mensagens de erro nunca mostram detalhes internos do servidor.
 - Cabeçalhos de segurança (HSTS, `nosniff`, `X-Frame-Options`, CSP) e sem CORS, porque só o app nativo usa a API.
 - Log de eventos de segurança (login, convites, remoção de membro, acesso negado) só com identificadores, sem e-mail, token, valor ou descrição.
-- Containers sem root, somente leitura, com limite de memória; o banco não fica exposto para a internet.
-- Segredos só no `deploy/.env` da VM e na máquina de build, nunca no repositório.
+- Container da API sem root; conexão com o banco sempre por TLS (`sslmode=require`).
+- Segredos só no painel do Render (ou no `deploy/.env` de uma VM própria) e na máquina de build, nunca no repositório. A `SECRET_KEY` é gerada pelo Render.
 
 Detalhes de implantação em [deploy.md](deploy.md) e o plano de testes em [testes.md](testes.md).
 
@@ -149,7 +150,8 @@ duo-cash/
 │   ├── app/             # rotas (blueprints), modelos, regras de negócio
 │   ├── migrations/      # versões do banco (Alembic)
 │   └── tests/           # PyTest + teste de estresse
-├── deploy/              # Docker Compose de produção, Caddy e script da VM
+├── render.yaml          # Blueprint do Render (API no plano gratuito)
+├── deploy/              # alternativa: Docker Compose para VM própria (Postgres + Caddy)
 ├── .github/workflows/   # CI do app e da API
 ├── docs/                # documentação e diagramas
 └── prototipo/           # protótipo das telas em HTML/CSS
